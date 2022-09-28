@@ -1,0 +1,26 @@
+{
+  "name": "project-1-igme430",
+  "version": "1.0.0",
+  "description": "Project 1 for IGME 430",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "pretest": "eslint ./src --fix",
+    "test": "echo \"Test Complete\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cnj3565/project-1-igme430.git"
+  },
+  "author": "Carter Jensen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cnj3565/project-1-igme430/issues"
+  },
+  "homepage": "https://github.com/cnj3565/project-1-igme430#readme",
+  "devDependencies": {
+    "eslint": "^8.23.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.26.0"
+  }
+}
