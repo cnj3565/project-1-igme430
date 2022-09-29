@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Project 1 - Carter Jensen - IGME 430</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <script>
+      const handleRepsonse = async (response, parseResponse) => {
+        const content = document.querySelector('#content');
+
+        switch(response.status) {
+          case 200:
+            content.innerHTML = '<b>Success</b>';
+            break;
+          case 201:
+            content.innerHTML = '<b>Created User</b>';
+            break;
+          case 204:
+            content.innerHTML = '<b>Updated User</b>';
+            break;
+          case 400:
+            content.innerHTML = '<b>Bad Request</b>';
+            break;
+          case 404:
+            content.innerHTML = '<b>Not Found</b>';
+            break;
+          default:
+            content.innerHTML = `Error code not implemented by client.`;
+            break;
+        };
+
+        if(parseResponse) {
+        const resText = await response.text();
+
+        // recreated from http api ii
+        // this just puts the raw JSON data in content
+        // will need to be overhauled for project scope
+        // will likely be put into new method
+        content.innerHTML += `<p>${resText}</p>`;
+        } else {
+          conent.innerHTML = `<p>Meta Data Received</p>`;
+        };
+      };
+
+      // sends user info
+      const sendPost = async (nameForm) => {
+        const nameAction = nameForm.getAttibute('action');
+        const nameMethod = nameForm.getAttibute('method');
+
+        const nameField = nameForm.querySelector('#nameField');
+        const pwField = nameForm.querySelector('#pwField');
+
+        const formData = `name=${nameField.value}&password=${pwField.value}`;
+
+        let response = await fetch(nameAction, {
+          method: nameMethod,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+          },
+          body: formData,
+        });
+
+        handleResponse(response);
+      };
+
+      // returns user info
+      const requestUpdate = async (userForm) => {
+        const url = userForm.querySelector('#urlField.value');
+        const method = userForm.querySelector('#methodSelect').value;
+
+        let response = await fetch(url, {
+          method,
+          headers: {
+            'Accept': 'application/json'
+          },
+        });
+
+        handleResponse(response, method === 'get');
+      };
+
+      // basic init method
+      const init = () => {
+        const nameForm = document.querySelector('#nameForm');
+        const userForm = document.querySelector('#userForm');
+
+        const addUser = (e) => {
+          e.preventDefault();
+          sendPost(nameForm);
+          return false;
+        };
+
+        const getUsers = (e) => {
+          e.preventDefault();
+          requestUpdate(userForm);
+          return false;
+        };
+
+        // likely will have to change if forms combine later
+        nameForm.addEventListener('submit', addUser);
+        userForm.addEventListener('submit', getUsers);
+      };
+
+      window.onload = init;
+    </script>
+</head>
+
+<body>
+    <!-- Add a header/topbar -->
+    <section id="inputField">
+        <!-- this is similar code from the http api ii assignment. 
+        it will need to get adjusted to fit the project criteria later -->
+        <form id="nameForm" action="/addUser" method="post">
+            <label for="name">Name: </label>
+            <input id="nameField" type="text" name="name" />
+            <label for="password">Password: </label>
+            <input id="pwField" type="text" name="pw" />
+            <input type="submit" value="Add User" />
+          </form>
+          <!-- try to combine add/get into the same general field to simplify things for the user -->
+          <form id="userForm" action="/getUsers" method="get">
+            <select id='urlField'>
+              <option value='/getUsers'>/getUsers</option>
+            </select>
+            <select id="methodSelect">
+              <option value="get">GET</option>
+              <option value="head">HEAD</option>
+            </select>
+            <input type="submit" value="Get User" />
+          </form>
+    </section>
+    <section id="content">
+    </section>
+</body>
