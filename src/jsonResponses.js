@@ -22,47 +22,8 @@ const respondJSONmeta = (request, response, statusCode) => {
 
 // addUser & parseBody ---------------------------------------
 
-// parseBody calls addUser so it comes first
-const addUser = (request, response, bodyObject) => {
-  // default json message, unchanged if data is missing
-  const responseJSON = {
-    message: 'Name and Password are both required.',
-  };
-
-  // check that both the required fields are submitted
-  if (!bodyObject.name || !bodyObject.password) {
-    responseJSON.id = 'missingParams';
-    return respondJSONmeta(request, response, 400);
-  }
-
-  // defaults status code to 204 for update cases
-  let responseCode = 204;
-
-  // if new user
-  if (!users[bodyObject.password]) {
-    responseCode = 201;
-    users[bodyObject.name] = {};
-    users[bodyObject.password] = {};
-  }
-
-  // once expanded to full project scope,
-  // may benefit to assign parameters in separate method
-  users[bodyObject.name].name = bodyObject.name;
-  users[bodyObject.password].password = bodyObject.password;
-
-  // changes message if new user was created
-  if (responseCode === 201) {
-    responseJSON.message = 'Created Successfully';
-    return respondJSONmeta(request, response, responseCode);
-  }
-
-  // writes different message if user has been updated
-  responseJSON.message = `User ${users[bodyObject.name]} has been updated accordingly.`;
-  return respondJSONmeta(request, response, responseCode);
-};
-
 // takes in user input and turns it into readable data
-const parseBody = (request, response) => {
+const parseBody = (request, response, handler) => {
   const body = [];
 
   // possible error handler
@@ -81,7 +42,47 @@ const parseBody = (request, response) => {
     const bodyString = Buffer.concat(body).toString();
     const bodyObject = query.parse(bodyString);
     console.log(bodyObject);
-    addUser(request, response, bodyObject);
+    handler(request, response, bodyObject);
+  });
+};
+
+const addUser = (request, response) => {
+  parseBody(request, response, (bodyObject) => {
+    // default json message, unchanged if data is missing
+    const responseJSON = {
+      message: 'Name and Password are both required.',
+    };
+
+    // check that both the required fields are submitted
+    if (!bodyObject.name || !bodyObject.password) {
+      responseJSON.id = 'missingParams';
+      return respondJSONmeta(request, response, 400);
+    }
+
+    // defaults status code to 204 for update cases
+    let responseCode = 204;
+
+    // if new user
+    if (!users[bodyObject.password]) {
+      responseCode = 201;
+      users[bodyObject.name] = {};
+      users[bodyObject.password] = {};
+    }
+
+    // once expanded to full project scope,
+    // may benefit to assign parameters in separate method
+    users[bodyObject.name].name = bodyObject.name;
+    users[bodyObject.password].password = bodyObject.password;
+
+    // changes message if new user was created
+    if (responseCode === 201) {
+      responseJSON.message = 'Created Successfully';
+      return respondJSONmeta(request, response, responseCode);
+    }
+
+    // writes different message if user has been updated
+    responseJSON.message = `User ${users[bodyObject.name]} has been updated accordingly.`;
+    return respondJSONmeta(request, response, responseCode);
   });
 };
 
@@ -90,13 +91,55 @@ const parseBody = (request, response) => {
 // merely recreating the code from http api ii
 // will need to make it user-specific in the future
 const getUsers = (request, response) => {
-  const responseJSON = {
-    users,
-  };
+  parseBody(request, response, (bodyObject) => {
+    // default json message, unchanged if data is missing
+    const responseJSON = {
+      message: 'Name and Password are both required.',
+    };
 
-  respondJSON(request, response, 200, responseJSON);
+    // check that both the required fields are submitted
+    if (!bodyObject.name || !bodyObject.password) {
+      responseJSON.id = 'missingParams';
+      return respondJSON(request, response, 400, responseJSON);
+    }
+
+    let i = 0;
+    let found = false;
+    while (users[i]) {
+      // checks to see if username is in user list
+      if (users[i].name === bodyObject.name) {
+        found = true;
+        break;
+      }
+      i++;
+    }
+
+    // if user was not found, say so
+    if (!found) {
+      responseJSON.message = 'User with that name not found.';
+      responseJSON.id = 'badRequest';
+      return respondJSON(request, response, 400, responseJSON);
+    }
+
+    // otherwise, continue with password
+    if (users[i].password !== bodyObject.password) {
+      found = false;
+    }
+
+    // if incorrect password, say so
+    if (!found) {
+      responseJSON.message = 'Incorrect Password';
+      responseJSON.id = 'unauthorized';
+      return respondJSON(request, response, 401, responseJSON);
+    }
+
+    // otherwise, return information
+    const responseJSONuser = users[i];
+    return respondJSON(request, response, 200, responseJSONuser);
+  });
 };
 
+// will assess later
 const getUsersMeta = (request, response) => {
   respondJSONmeta(request, response, 200);
 };
@@ -117,7 +160,7 @@ const notFoundMeta = (request, response) => {
 
 // sending to server.js
 module.exports = {
-  parseBody,
+  addUser,
   getUsers,
   getUsersMeta,
   notFound,

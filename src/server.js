@@ -6,10 +6,13 @@ const jsonHandler = require('./jsonResponses.js');
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 const urlStruct = {
+  POST: {
+    '/addUser': jsonHandler.addUser,
+  },
   GET: {
     '/': htmlHandler.getIndex,
     '/style.css': htmlHandler.getCSS,
-    '/getUsers': jsonHandler.getUser,
+    '/getUsers': jsonHandler.getUsers,
     notFound: jsonHandler.notFound,
   },
   HEAD: {
@@ -24,11 +27,6 @@ const onRequest = (request, response) => {
   // if not using a recognized method, return 404
   if (!urlStruct[request.method]) {
     return urlStruct.HEAD.notFound(request, response);
-  }
-
-  // only one POST method
-  if (request.method === 'POST') {
-    return jsonHandler.parseBody(request, response);
   }
 
   // directing pathway to follow urlStruct into response methods

@@ -4,7 +4,7 @@
     <title>Project 1 - Carter Jensen - IGME 430</title>
     <link rel="stylesheet" type="text/css" href="/style.css">
     <script>
-      const handleRepsonse = async (response, parseResponse) => {
+      const handleResponse = async (response, parseResponse) => {
         const content = document.querySelector('#content');
 
         switch(response.status) {
@@ -37,14 +37,14 @@
         // will likely be put into new method
         content.innerHTML += `<p>${resText}</p>`;
         } else {
-          conent.innerHTML = `<p>Meta Data Received</p>`;
+          content.innerHTML = `<p>Meta Data Received</p>`;
         };
       };
 
       // sends user info
       const sendPost = async (nameForm) => {
-        const nameAction = nameForm.getAttibute('action');
-        const nameMethod = nameForm.getAttibute('method');
+        const nameAction = nameForm.getAttribute('action');
+        const nameMethod = nameForm.getAttribute('method');
 
         const nameField = nameForm.querySelector('#nameField');
         const pwField = nameForm.querySelector('#pwField');
