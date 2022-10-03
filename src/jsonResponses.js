@@ -67,27 +67,28 @@ const addUser = (request, response) => {
     if (!users[bodyObject.name] && !users[bodyObject.password]) {
       responseCode = 201;
       users[bodyObject.name] = {};
-      users[bodyObject.password] = {};
     }
 
     // once expanded to full project scope,
     // may benefit to assign parameters in separate method
     users[bodyObject.name].name = bodyObject.name;
-    users[bodyObject.password].password = bodyObject.password;
+    users[bodyObject.name].password = bodyObject.password;
 
     // task information
     // try and manage this dynamically
     // handle empty tasks
-    users[bodyObject.task1].task1 = bodyObject.task1;
-    users[bodyObject.dl1].dl1 = bodyObject.dl1;
-    users[bodyObject.task2].task2 = bodyObject.task2;
-    users[bodyObject.dl2].dl2 = bodyObject.dl2;
-    users[bodyObject.task3].task3 = bodyObject.task3;
-    users[bodyObject.dl3].dl3 = bodyObject.dl3;
-    users[bodyObject.task4].task4 = bodyObject.task4;
-    users[bodyObject.dl4].dl4 = bodyObject.dl4;
-    users[bodyObject.task5].task5 = bodyObject.task5;
-    users[bodyObject.dl5].dl5 = bodyObject.dl5;
+    /*
+    users[bodyObject.name].task1 = bodyObject.task1;
+    users[bodyObject.name].dl1 = bodyObject.dl1;
+    users[bodyObject.name].task2 = bodyObject.task2;
+    users[bodyObject.name].dl2 = bodyObject.dl2;
+    users[bodyObject.name].task3 = bodyObject.task3;
+    users[bodyObject.name].dl3 = bodyObject.dl3;
+    users[bodyObject.name].task4 = bodyObject.task4;
+    users[bodyObject.name].dl4 = bodyObject.dl4;
+    users[bodyObject.name].task5 = bodyObject.task5;
+    users[bodyObject.name].dl5 = bodyObject.dl5;
+    */
 
     // changes message if new user was created
     if (responseCode === 201) {

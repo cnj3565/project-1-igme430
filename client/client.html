@@ -47,6 +47,10 @@
       const pwField = nameForm.querySelector('#pwField');
 
       // task info
+      // create a loop which forms the string formData
+      // using each part of the tasks, using the container
+      // to select all at once
+      /*
       const content = document.querySelector('#content');
       const task1Field = content.querySelector('#task1Field');
       const dl1Field = content.querySelector('#dl1Field');
@@ -58,14 +62,15 @@
       const dl4Field = content.querySelector('#dl4Field');
       const task5Field = content.querySelector('#task5Field');
       const dl5Field = content.querySelector('#dl5Field');
+      */
 
       // putting it together into JSON
       let formData = `name=${nameField.value}&password=${pwField.value}`;
-      formData += `&task1=${task1Field.value}&dl1Field=${dl1Field.value}`;
+      /* formData += `&task1=${task1Field.value}&dl1Field=${dl1Field.value}`;
       formData += `&task2=${task2Field.value}&dl2Field=${dl2Field.value}`;
       formData += `&task3=${task3Field.value}&dl3Field=${dl3Field.value}`;
       formData += `&task4=${task4Field.value}&dl4Field=${dl4Field.value}`;
-      formData += `&task5=${task5Field.value}&dl5Field=${dl5Field.value}`;
+      formData += `&task5=${task5Field.value}&dl5Field=${dl5Field.value}`; */
 
       console.log("Before fetch in client");
       let response = await fetch(nameAction, {
