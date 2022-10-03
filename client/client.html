@@ -60,7 +60,7 @@
       const dl5Field = content.querySelector('#dl5Field');
 
       // putting it together into JSON
-      const formData = `name=${nameField.value}&password=${pwField.value}`;
+      let formData = `name=${nameField.value}&password=${pwField.value}`;
       formData += `&task1=${task1Field.value}&dl1Field=${dl1Field.value}`;
       formData += `&task2=${task2Field.value}&dl2Field=${dl2Field.value}`;
       formData += `&task3=${task3Field.value}&dl3Field=${dl3Field.value}`;
@@ -131,7 +131,7 @@
       <form id="nameForm" action="/addUser" method="post">
         <label for="name">Name: </label>
         <input id="nameField" type="text" name="name" />
-        <label for="age">Age: </label>
+        <label for="password">Password: </label>
         <input id="pwField" type="text" name="password" />
         <input type="submit" value="Add User" />
       </form>
