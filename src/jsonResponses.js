@@ -33,8 +33,8 @@ const parseBody = (request, response, handler) => {
     response.end();
   });
 
-  // separates data into chunks
   request.on('data', (chunk) => {
+    console.log(chunk);
     body.push(chunk);
   });
 
@@ -62,8 +62,9 @@ const addUser = (request, response) => {
     // defaults status code to 204 for update cases
     let responseCode = 204;
 
-    // if new user
-    if (!users[bodyObject.password]) {
+    // if new user, checks for matching name and password
+    // may not be completely foolproof
+    if (!users[bodyObject.name] && !users[bodyObject.password]) {
       responseCode = 201;
       users[bodyObject.name] = {};
       users[bodyObject.password] = {};
@@ -74,6 +75,18 @@ const addUser = (request, response) => {
     users[bodyObject.name].name = bodyObject.name;
     users[bodyObject.password].password = bodyObject.password;
 
+    // task information
+    users[bodyObject.task1].task1 = bodyObject.task1;
+    users[bodyObject.dl1].dl1 = bodyObject.dl1;
+    users[bodyObject.task2].task2 = bodyObject.task2;
+    users[bodyObject.dl2].dl2 = bodyObject.dl2;
+    users[bodyObject.task3].task3 = bodyObject.task3;
+    users[bodyObject.dl3].dl3 = bodyObject.dl3;
+    users[bodyObject.task4].task4 = bodyObject.task4;
+    users[bodyObject.dl4].dl4 = bodyObject.dl4;
+    users[bodyObject.task5].task5 = bodyObject.task5;
+    users[bodyObject.dl5].dl5 = bodyObject.dl5;
+
     // changes message if new user was created
     if (responseCode === 201) {
       responseJSON.message = 'Created Successfully';
@@ -81,15 +94,23 @@ const addUser = (request, response) => {
     }
 
     // writes different message if user has been updated
-    responseJSON.message = `User ${users[bodyObject.name]} has been updated accordingly.`;
+    responseJSON.message = `User ${users[bodyObject.name].name} has been updated accordingly.`;
     return respondJSONmeta(request, response, responseCode);
   });
 };
 
 // getUsers methods -----------------------------------------
 
-// merely recreating the code from http api ii
-// will need to make it user-specific in the future
+// /!\ identical to getUsers from http api ii, but causes a direct download now
+// for debugging purposes, should just display a whole user list when traveled to
+const userList = (request, response) => {
+  const responseJSON = {
+    users,
+  };
+
+  respondJSON(request, response, 200, responseJSON);
+};
+
 const getUsers = (request, response) => {
   parseBody(request, response, (bodyObject) => {
     // default json message, unchanged if data is missing
@@ -140,6 +161,7 @@ const getUsers = (request, response) => {
 };
 
 // will assess later
+// may not be needed if whole user info should be returned
 const getUsersMeta = (request, response) => {
   respondJSONmeta(request, response, 200);
 };
@@ -161,6 +183,7 @@ const notFoundMeta = (request, response) => {
 // sending to server.js
 module.exports = {
   addUser,
+  userList,
   getUsers,
   getUsersMeta,
   notFound,

@@ -13,6 +13,7 @@ const urlStruct = {
     '/': htmlHandler.getIndex,
     '/style.css': htmlHandler.getCSS,
     '/getUsers': jsonHandler.getUsers,
+    '/userList': jsonHandler.userList,
     notFound: jsonHandler.notFound,
   },
   HEAD: {
@@ -33,6 +34,7 @@ const onRequest = (request, response) => {
   if (urlStruct[request.method][parsedUrl.pathname]) {
     return urlStruct[request.method][parsedUrl.pathname](request, response);
   }
+
   // otherwise, send to not found
   return urlStruct[request.method].notFound(request, response);
 };

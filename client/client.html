@@ -5,129 +5,176 @@
     <link rel="stylesheet" type="text/css" href="/style.css">
     <script>
       const handleResponse = async (response, parseResponse) => {
-        const content = document.querySelector('#content');
-
-        switch(response.status) {
-          case 200:
-            content.innerHTML = '<b>Success</b>';
-            break;
-          case 201:
-            content.innerHTML = '<b>Created User</b>';
-            break;
-          case 204:
-            content.innerHTML = '<b>Updated User</b>';
-            break;
-          case 400:
-            content.innerHTML = '<b>Bad Request</b>';
-            break;
-          case 404:
-            content.innerHTML = '<b>Not Found</b>';
-            break;
-          default:
-            content.innerHTML = `Error code not implemented by client.`;
-            break;
-        };
-
-        if(parseResponse) {
+      const content = document.querySelector('#content');
+      
+      switch(response.status) {
+        case 200:
+          content.innerHTML = `<b>Success</b>`;
+          break;
+        case 201:
+          content.innerHTML = '<b>Created User</b>';
+          break;
+        case 204:
+          content.innerHTML = '<b>Updated Age</b>';
+          return;
+        case 400:
+          content.innerHTML = `<b>Bad Request</b>`;
+          break;
+        case 404:
+          content.innerHTML = '<b>Not Found</b>';
+          break;
+        default: 
+          content.innerHTML = `Error code not implemented by client.`;
+          break;
+      }
+      
+      // where the user info gets returned
+      // will have to be expanded to fit project scope
+      if(parseResponse) {
         const resText = await response.text();
-
-        // recreated from http api ii
-        // this just puts the raw JSON data in content
-        // will need to be overhauled for project scope
-        // will likely be put into new method
         content.innerHTML += `<p>${resText}</p>`;
-        } else {
-          content.innerHTML = `<p>Meta Data Received</p>`;
-        };
+      } else {
+        content.innerHTML += `<p>Meta Data Received</p>`;
       };
+    };
 
-      // sends user info
-      const sendPost = async (nameForm) => {
-        const nameAction = nameForm.getAttribute('action');
-        const nameMethod = nameForm.getAttribute('method');
+    // Sends the user info, will be called in addUser
+    const sendPost = async (nameForm) => {
+      const nameAction = nameForm.getAttribute('action');
+      const nameMethod = nameForm.getAttribute('method');
+      
+      const nameField = nameForm.querySelector('#nameField');
+      const pwField = nameForm.querySelector('#pwField');
 
-        const nameField = nameForm.querySelector('#nameField');
-        const pwField = nameForm.querySelector('#pwField');
+      // task info
+      const content = document.querySelector('#content');
+      const task1Field = content.querySelector('#task1Field');
+      const dl1Field = content.querySelector('#dl1Field');
+      const task2Field = content.querySelector('#task2Field');
+      const dl2Field = content.querySelector('#dl2Field');
+      const task3Field = content.querySelector('#task3Field');
+      const dl3Field = content.querySelector('#dl3Field');
+      const task4Field = content.querySelector('#task4Field');
+      const dl4Field = content.querySelector('#dl4Field');
+      const task5Field = content.querySelector('#task5Field');
+      const dl5Field = content.querySelector('#dl5Field');
 
-        const formData = `name=${nameField.value}&password=${pwField.value}`;
+      // putting it together into JSON
+      const formData = `name=${nameField.value}&password=${pwField.value}`;
+      formData += `&task1=${task1Field.value}&dl1Field=${dl1Field.value}`;
+      formData += `&task2=${task2Field.value}&dl2Field=${dl2Field.value}`;
+      formData += `&task3=${task3Field.value}&dl3Field=${dl3Field.value}`;
+      formData += `&task4=${task4Field.value}&dl4Field=${dl4Field.value}`;
+      formData += `&task5=${task5Field.value}&dl5Field=${dl5Field.value}`;
 
-        let response = await fetch(nameAction, {
-          method: nameMethod,
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json',
-          },
-          body: formData,
-        });
+      console.log("Before fetch in client");
+      let response = await fetch(nameAction, {
+        method: nameMethod,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+        },
+        body: formData,
+      });
+      console.log("Response in sendPost: " + response);
+      handleResponse(response);
+    };
 
-        handleResponse(response);
-      };
-
-      // returns user info
-      const requestUpdate = async (userForm) => {
-        const url = userForm.querySelector('#urlField.value');
-        const method = userForm.querySelector('#methodSelect').value;
-
-        let response = await fetch(url, {
-          method,
-          headers: {
+    // Returns user info, will be called in getUsers
+    const requestUpdate = async (userForm) => {
+      
+      const url = userForm.querySelector('#urlField').value;
+      const method = userForm.querySelector('#methodSelect').value;
+      
+      let response = await fetch(url, {
+        method,
+        headers: {
             'Accept': 'application/json'
-          },
-        });
+        },
+      });
 
-        handleResponse(response, method === 'get');
+      handleResponse(response, method === 'get');
+    };
+
+    // Basic init function
+    const init = () => {
+      const nameForm = document.querySelector('#nameForm');
+      const userForm = document.querySelector('#userForm');
+      
+      const addUser = (e) => {
+        e.preventDefault();
+        sendPost(nameForm);
+        console.log("Add User went through in client.html");
+        return false;
       };
 
-      // basic init method
-      const init = () => {
-        const nameForm = document.querySelector('#nameForm');
-        const userForm = document.querySelector('#userForm');
-
-        const addUser = (e) => {
-          e.preventDefault();
-          sendPost(nameForm);
-          return false;
-        };
-
-        const getUsers = (e) => {
-          e.preventDefault();
-          requestUpdate(userForm);
-          return false;
-        };
-
-        // likely will have to change if forms combine later
-        nameForm.addEventListener('submit', addUser);
-        userForm.addEventListener('submit', getUsers);
+      const getUsers = (e) => {
+        e.preventDefault();
+        requestUpdate(userForm);
+        return false;
       };
+      
+      nameForm.addEventListener('submit', addUser);
+      userForm.addEventListener('submit', getUsers);
+    };
 
-      window.onload = init;
+    //When the window loads, run init.
+    window.onload = init;
     </script>
 </head>
 
 <body>
     <!-- Add a header/topbar -->
-    <section id="inputField">
-        <!-- this is similar code from the http api ii assignment. 
+    <section id="top">
+      <!-- this is similar code from the http api ii assignment. 
         it will need to get adjusted to fit the project criteria later -->
-        <form id="nameForm" action="/addUser" method="post">
-            <label for="name">Name: </label>
-            <input id="nameField" type="text" name="name" />
-            <label for="password">Password: </label>
-            <input id="pwField" type="text" name="pw" />
-            <input type="submit" value="Add User" />
-          </form>
-          <!-- try to combine add/get into the same general field to simplify things for the user -->
-          <form id="userForm" action="/getUsers" method="get">
-            <select id='urlField'>
-              <option value='/getUsers'>/getUsers</option>
-            </select>
-            <select id="methodSelect">
-              <option value="get">GET</option>
-              <option value="head">HEAD</option>
-            </select>
-            <input type="submit" value="Get User" />
-          </form>
+      <form id="nameForm" action="/addUser" method="post">
+        <label for="name">Name: </label>
+        <input id="nameField" type="text" name="name" />
+        <label for="age">Age: </label>
+        <input id="pwField" type="text" name="password" />
+        <input type="submit" value="Add User" />
+      </form>
+      <!-- GET section should be combined with user info or single button 
+      HEAD distinction not necessary -->
+      <form id="userForm" action="/getUsers" method="get">
+        <select id='urlField'>
+          <option value='/getUsers'>/getUsers</option>
+          <option value='/notReal'>/notReal</option>
+        </select>
+        <select id="methodSelect">
+          <option value="get">GET</option>
+          <option value="head">HEAD</option>
+        </select>
+        <input type="submit" value="Get User" />
+      </form>
     </section>
     <section id="content">
+      <h1>Task List</h1>
+      <!-- task 1 -->
+        <label for="task1">Task 1: </label>
+        <input id="task1Field" type="text" name="task1" />
+        <label for="dl1">Do By: </label>
+        <input id="dl1Field" type="text" name="deadline1" />
+      <!-- task 2 -->
+        <label for="task2">Task 2: </label>
+        <input id="task2Field" type="text" name="task2" />
+        <label for="dl2">Do By: </label>
+        <input id="dl2Field" type="text" name="deadline2" />
+      <!-- task 3 -->
+        <label for="task3">Task 3: </label>
+        <input id="task3Field" type="text" name="task3" />
+        <label for="dl3">Do By: </label>
+        <input id="dl3Field" type="text" name="deadline3" />
+      <!-- task 4 -->
+        <label for="task4">Task 4: </label>
+        <input id="task4Field" type="text" name="task4" />
+        <label for="dl4">Do By: </label>
+        <input id="dl4Field" type="text" name="deadline4" />
+      <!-- task 5 -->
+        <label for="task5">Task 5: </label>
+        <input id="task5Field" type="text" name="task5" />
+        <label for="dl5">Do By: </label>
+        <input id="dl5Field" type="text" name="deadline5" />
     </section>
 </body>
