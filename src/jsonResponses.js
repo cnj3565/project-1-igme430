@@ -6,7 +6,7 @@ const users = {};
 // JSON Responders ------------------------------------------
 const respondJSON = (request, response, statusCode, object) => {
   const headers = {
-    'Content-Type': 'applicate/json',
+    'Content-Type': 'application/json',
   };
 
   response.writeHead(statusCode, headers);
@@ -42,7 +42,7 @@ const parseBody = (request, response, handler) => {
     const bodyString = Buffer.concat(body).toString();
     const bodyObject = query.parse(bodyString);
     console.log(bodyObject);
-    handler(request, response, bodyObject);
+    handler(bodyObject);
   });
 };
 
@@ -76,6 +76,8 @@ const addUser = (request, response) => {
     users[bodyObject.password].password = bodyObject.password;
 
     // task information
+    // try and manage this dynamically
+    // handle empty tasks
     users[bodyObject.task1].task1 = bodyObject.task1;
     users[bodyObject.dl1].dl1 = bodyObject.dl1;
     users[bodyObject.task2].task2 = bodyObject.task2;
