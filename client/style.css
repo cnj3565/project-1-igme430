@@ -1,0 +1,55 @@
+body {
+    background-color: #7EE5D2;
+    margin:0;
+    padding:0;
+}
+
+#main {
+    background: white;
+    width:70%;
+    margin:auto;
+    border:10px solid #004C16;
+    border-radius: 3em;
+    padding:2em;
+    margin-top: 5rem;
+    margin-bottom: 5rem;
+}
+
+header {
+    background-color: white;
+    border-bottom: 10px solid #004C16;
+    text-align: center;
+    padding:1em;
+}
+
+h1 {
+    font-weight: bolder;
+    font-size: 24pt;
+}
+
+footer {
+    background-color: #0038B2;
+    color:white;
+    font-size:10pt;
+    text-align:center;
+    padding:1em;
+}
+
+#top {
+    width:80%;
+    margin:auto;
+    text-align:center;
+}
+#top label {
+    font-weight: bold;
+}
+
+#content {
+    width:50%;
+    margin:auto;
+    text-align:center;
+}
+
+#addUserButton, #getUserButton, #addTaskButton {
+    margin: 0.25rem;
+}

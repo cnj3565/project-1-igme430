@@ -77,18 +77,7 @@ const addUser = (request, response) => {
     // task information
     // try and manage this dynamically
     // handle empty tasks
-    /*
-    users[bodyObject.name].task1 = bodyObject.task1;
-    users[bodyObject.name].dl1 = bodyObject.dl1;
-    users[bodyObject.name].task2 = bodyObject.task2;
-    users[bodyObject.name].dl2 = bodyObject.dl2;
-    users[bodyObject.name].task3 = bodyObject.task3;
-    users[bodyObject.name].dl3 = bodyObject.dl3;
-    users[bodyObject.name].task4 = bodyObject.task4;
-    users[bodyObject.name].dl4 = bodyObject.dl4;
-    users[bodyObject.name].task5 = bodyObject.task5;
-    users[bodyObject.name].dl5 = bodyObject.dl5;
-    */
+    
 
     // changes message if new user was created
     if (responseCode === 201) {
@@ -114,53 +103,48 @@ const userList = (request, response) => {
   respondJSON(request, response, 200, responseJSON);
 };
 
-const getUsers = (request, response) => {
-  parseBody(request, response, (bodyObject) => {
-    // default json message, unchanged if data is missing
-    const responseJSON = {
-      message: 'Name and Password are both required.',
-    };
+const getUsers = (request, response, params) => {
+  // default json message, unchanged if data is missing
+  const responseJSON = {
+    message: 'Name and Password are both required.',
+  };
 
-    // check that both the required fields are submitted
-    if (!bodyObject.name || !bodyObject.password) {
-      responseJSON.id = 'missingParams';
-      return respondJSON(request, response, 400, responseJSON);
-    }
+  // check that both the required fields are submitted
+  if (!params.username || !params.password) {
+    responseJSON.id = 'missingParams';
+    return respondJSON(request, response, 400, responseJSON);
+  }
 
-    let i = 0;
-    let found = false;
-    while (users[i]) {
-      // checks to see if username is in user list
-      if (users[i].name === bodyObject.name) {
-        found = true;
-        break;
-      }
-      i++;
-    }
+  console.log(users);
+  let found = false;
 
-    // if user was not found, say so
-    if (!found) {
-      responseJSON.message = 'User with that name not found.';
-      responseJSON.id = 'badRequest';
-      return respondJSON(request, response, 400, responseJSON);
-    }
+  // checks to see if username is in user list
+  if (users[params.username]) {
+    found = true;
+  }
 
-    // otherwise, continue with password
-    if (users[i].password !== bodyObject.password) {
-      found = false;
-    }
+  // if user was not found, say so
+  if (!found) {
+    responseJSON.message = 'User with that name not found.';
+    responseJSON.id = 'badRequest';
+    return respondJSON(request, response, 400, responseJSON);
+  }
 
-    // if incorrect password, say so
-    if (!found) {
-      responseJSON.message = 'Incorrect Password';
-      responseJSON.id = 'unauthorized';
-      return respondJSON(request, response, 401, responseJSON);
-    }
+  // otherwise, continue with password
+  if (users[params.username].password !== params.password) {
+    found = false;
+  }
 
-    // otherwise, return information
-    const responseJSONuser = users[i];
-    return respondJSON(request, response, 200, responseJSONuser);
-  });
+  // if incorrect password, say so
+  if (!found) {
+    responseJSON.message = 'Incorrect Password';
+    responseJSON.id = 'unauthorized';
+    return respondJSON(request, response, 401, responseJSON);
+  }
+
+  // otherwise, return information
+  const responseJSONuser = users[params.username];
+  return respondJSON(request, response, 200, responseJSONuser);
 };
 
 // will assess later

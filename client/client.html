@@ -4,6 +4,8 @@
     <title>Project 1 - Carter Jensen - IGME 430</title>
     <link rel="stylesheet" type="text/css" href="/style.css">
     <script>
+      let taskNumber;
+      
       const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#content');
       
@@ -19,6 +21,9 @@
           return;
         case 400:
           content.innerHTML = `<b>Bad Request</b>`;
+          break;
+        case 401:
+          content.innerHTML = `<b>Unauthorized</b>`;
           break;
         case 404:
           content.innerHTML = '<b>Not Found</b>';
@@ -43,36 +48,35 @@
       const nameAction = nameForm.getAttribute('action');
       const nameMethod = nameForm.getAttribute('method');
       
-      const nameField = nameForm.querySelector('#nameField');
-      const pwField = nameForm.querySelector('#pwField');
+      const nameField = nameForm.querySelector('#nameField').value;
+      const pwField = nameForm.querySelector('#pwField').value;
 
       // task info
       // create a loop which forms the string formData
       // using each part of the tasks, using the container
       // to select all at once
-      /*
-      const content = document.querySelector('#content');
-      const task1Field = content.querySelector('#task1Field');
-      const dl1Field = content.querySelector('#dl1Field');
-      const task2Field = content.querySelector('#task2Field');
-      const dl2Field = content.querySelector('#dl2Field');
-      const task3Field = content.querySelector('#task3Field');
-      const dl3Field = content.querySelector('#dl3Field');
-      const task4Field = content.querySelector('#task4Field');
-      const dl4Field = content.querySelector('#dl4Field');
-      const task5Field = content.querySelector('#task5Field');
-      const dl5Field = content.querySelector('#dl5Field');
-      */
+      
+      const tasks = document.querySelector('#tasks');
+      let taskArray = tasks.querySelectorAll('input');
+      console.log(taskArray);
 
       // putting it together into JSON
-      let formData = `name=${nameField.value}&password=${pwField.value}`;
-      /* formData += `&task1=${task1Field.value}&dl1Field=${dl1Field.value}`;
-      formData += `&task2=${task2Field.value}&dl2Field=${dl2Field.value}`;
-      formData += `&task3=${task3Field.value}&dl3Field=${dl3Field.value}`;
-      formData += `&task4=${task4Field.value}&dl4Field=${dl4Field.value}`;
-      formData += `&task5=${task5Field.value}&dl5Field=${dl5Field.value}`; */
+      let taskNum = 1;
+      let formData = `name=${nameField}&password=${pwField}&`;
 
-      console.log("Before fetch in client");
+      // looping through task list data
+      for(let t = 0; t < taskArray.length-2; t+=2) {
+        formData += `task${taskNum}=${taskArray[t].value}&`;
+        formData += `deadline${taskNum}=${taskArray[t+1].value}&`;
+        taskNum++;
+      };
+
+      // last task element
+      if(taskArray.length > 2){
+        formData += `task${taskNum}=${taskArray[taskArray.length-2].value}&`;
+        formData += `deadline${taskNum}=${taskArray[taskArray.length-1].value}`;
+      }
+
       let response = await fetch(nameAction, {
         method: nameMethod,
         headers: {
@@ -81,46 +85,90 @@
         },
         body: formData,
       });
-      console.log("Response in sendPost: " + response);
       handleResponse(response);
     };
 
     // Returns user info, will be called in getUsers
-    const requestUpdate = async (userForm) => {
+    const requestUpdate = async (userForm, nameForm) => {
       
-      const url = userForm.querySelector('#urlField').value;
+      let url = userForm.querySelector('#urlField').value;
       const method = userForm.querySelector('#methodSelect').value;
+
+      const nameField = nameForm.querySelector('#nameField').value;
+      const pwField = nameForm.querySelector('#pwField').value;
+
+      url += "?" + `username=${nameField}&password=${pwField}`;
+
       
       let response = await fetch(url, {
         method,
-        headers: {
-            'Accept': 'application/json'
+        headers: { 
+          'Accept': 'application/json',
         },
       });
-
       handleResponse(response, method === 'get');
     };
 
+    // Adds new task row to task list
+    const addNewTask = () => {
+      taskNumber++;
+      console.log("addTask called!");
+      console.log(`Task number is ${taskNumber}`);
+      const taskField = document.querySelector('#tasks');
+
+      // Creates the label
+      let newTaskLabel = document.createElement("label");
+      newTaskLabel.for = `task${taskNumber}`;
+      const labelText = document.createTextNode(`Task #${taskNumber}: `);
+      newTaskLabel.appendChild(labelText);
+      taskField.appendChild(newTaskLabel);
+
+      // Creates the text field
+      let newTaskField = document.createElement("input");
+      newTaskField.type = "text";
+      newTaskField.id = `task${taskNumber}Field`;
+      newTaskField.name = `task${taskNumber}`;
+      taskField.appendChild(newTaskField);
+
+      // Creates the Due By label
+      let deadline = document.createElement("label");
+      deadline.for = `dl${taskNumber}`;
+      const deadlineText = document.createTextNode(" Due By: ");
+      deadline.appendChild(deadlineText);
+      taskField.appendChild(deadline);
+
+      // Creates Due By field
+      let deadlineField = document.createElement("input");
+      deadlineField.type = "text";
+      deadlineField.id = `dl${taskNumber}Field`;
+      deadlineField.name = `deadline${taskNumber}`;
+      taskField.appendChild(deadlineField);
+      taskField.appendChild(document.createElement("br"));
+    }
+
     // Basic init function
     const init = () => {
+      taskNumber = 1;
+      
       const nameForm = document.querySelector('#nameForm');
       const userForm = document.querySelector('#userForm');
+      const addTaskButton = document.querySelector('#addTaskButton');
       
       const addUser = (e) => {
         e.preventDefault();
         sendPost(nameForm);
-        console.log("Add User went through in client.html");
         return false;
       };
 
       const getUsers = (e) => {
         e.preventDefault();
-        requestUpdate(userForm);
+        requestUpdate(userForm, nameForm);
         return false;
       };
       
       nameForm.addEventListener('submit', addUser);
       userForm.addEventListener('submit', getUsers);
+      addTaskButton.addEventListener("click", addNewTask);
     };
 
     //When the window loads, run init.
@@ -129,57 +177,40 @@
 </head>
 
 <body>
-    <!-- Add a header/topbar -->
+    <header>
+      <h1>Your Very Own Task List</h1>
+      <h3>Project 1 for IGME 430</h3>
+    </header>
+    <div id="main">
     <section id="top">
-      <!-- this is similar code from the http api ii assignment. 
-        it will need to get adjusted to fit the project criteria later -->
+      <div id="instructions">
+        <p>Fill in a Username and Password first, then add tasks in the task list</p>
+        <p>Once you're finished, click the Add User button to add your list to the system.</p>
+        <p>If you want to update your list, make sure your Username and Password is the same, and click Add User again.</p>
+        <p>If you want to retrieve you list, fill in your Username and Password and click Get My List.</p>
+      </div>
+
       <form id="nameForm" action="/addUser" method="post">
-        <label for="name">Name: </label>
+        <label for="name">Username: </label>
         <input id="nameField" type="text" name="name" />
         <label for="password">Password: </label>
-        <input id="pwField" type="text" name="password" />
-        <input type="submit" value="Add User" />
+        <input id="pwField" type="text" name="password" /><br>
+        <input id="addUserButton" type="submit" value="Add User" />
       </form>
-      <!-- GET section should be combined with user info or single button 
-      HEAD distinction not necessary -->
       <form id="userForm" action="/getUsers" method="get">
-        <select id='urlField'>
-          <option value='/getUsers'>/getUsers</option>
-          <option value='/notReal'>/notReal</option>
-        </select>
-        <select id="methodSelect">
-          <option value="get">GET</option>
-          <option value="head">HEAD</option>
-        </select>
-        <input type="submit" value="Get User" />
+        <input id="getUserButton" type="submit" value="Get My List" />
       </form>
     </section>
     <section id="content">
-      <h1>Task List</h1>
-      <!-- task 1 -->
-        <label for="task1">Task 1: </label>
-        <input id="task1Field" type="text" name="task1" />
-        <label for="dl1">Do By: </label>
-        <input id="dl1Field" type="text" name="deadline1" /> <br>
-      <!-- task 2 -->
-        <label for="task2">Task 2: </label>
-        <input id="task2Field" type="text" name="task2" />
-        <label for="dl2">Do By: </label>
-        <input id="dl2Field" type="text" name="deadline2" /> <br>
-      <!-- task 3 -->
-        <label for="task3">Task 3: </label>
-        <input id="task3Field" type="text" name="task3" />
-        <label for="dl3">Do By: </label>
-        <input id="dl3Field" type="text" name="deadline3" /> <br>
-      <!-- task 4 -->
-        <label for="task4">Task 4: </label>
-        <input id="task4Field" type="text" name="task4" />
-        <label for="dl4">Do By: </label>
-        <input id="dl4Field" type="text" name="deadline4" /> <br>
-      <!-- task 5 -->
-        <label for="task5">Task 5: </label>
-        <input id="task5Field" type="text" name="task5" />
-        <label for="dl5">Do By: </label>
-        <input id="dl5Field" type="text" name="deadline5" /> <br>
+      <container id="tasks">
+        <h1>Task List</h1>
+          <label for="task1">Task #1: </label>
+          <input id="task1Field" type="text" name="task1" />
+          <label for="dl1">Due By: </label>
+          <input id="dl1Field" type="text" name="deadline1" /> <br>
+      </container>
+      <button id="addTaskButton" type="button">Add Task</button>
     </section>
+    </div>
+    <footer>Carter Jensen - Fall 2022 - IGME 430</footer>
 </body>

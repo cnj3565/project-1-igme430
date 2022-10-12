@@ -1,5 +1,6 @@
 const http = require('http');
 const url = require('url');
+const query = require('querystring');
 const htmlHandler = require('./htmlResponses.js');
 const jsonHandler = require('./jsonResponses.js');
 
@@ -24,6 +25,7 @@ const urlStruct = {
 
 const onRequest = (request, response) => {
   const parsedUrl = url.parse(request.url);
+  const queryParams = query.parse(parsedUrl.query);
 
   // if not using a recognized method, return 404
   if (!urlStruct[request.method]) {
@@ -32,7 +34,7 @@ const onRequest = (request, response) => {
 
   // directing pathway to follow urlStruct into response methods
   if (urlStruct[request.method][parsedUrl.pathname]) {
-    return urlStruct[request.method][parsedUrl.pathname](request, response);
+    return urlStruct[request.method][parsedUrl.pathname](request, response, queryParams);
   }
 
   // otherwise, send to not found
