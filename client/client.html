@@ -7,39 +7,57 @@
       let taskNumber;
       
       const handleResponse = async (response, parseResponse) => {
-      const content = document.querySelector('#content');
+        const statusMsg = document.querySelector('#status');
       
-      switch(response.status) {
-        case 200:
-          content.innerHTML = `<b>Success</b>`;
-          break;
-        case 201:
-          content.innerHTML = '<b>Created User</b>';
-          break;
-        case 204:
-          content.innerHTML = '<b>Updated Age</b>';
-          return;
-        case 400:
-          content.innerHTML = `<b>Bad Request</b>`;
-          break;
-        case 401:
-          content.innerHTML = `<b>Unauthorized</b>`;
-          break;
-        case 404:
-          content.innerHTML = '<b>Not Found</b>';
-          break;
-        default: 
-          content.innerHTML = `Error code not implemented by client.`;
-          break;
+        switch(response.status) {
+          case 200:
+            statusMsg.innerHTML = `<b>Success</b>`;
+            break;
+          case 201:
+            statusMsg.innerHTML = '<b>Created User</b>';
+            break;
+          case 204:
+            statusMsg.innerHTML = '<b>Updated List</b>';
+            return;
+          case 400:
+            statusMsg.innerHTML = `<b>Bad Request</b>`;
+            break;
+          case 401:
+            statusMsg.innerHTML = `<b>Unauthorized</b>`;
+            break;
+          case 404:
+            statusMsg.innerHTML = '<b>Not Found</b>';
+            break;
+          default: 
+            statusMsg.innerHTML = `Error code not implemented by client.`;
+            break;
       }
       
       // where the user info gets returned
-      // will have to be expanded to fit project scope
       if(parseResponse) {
         const resText = await response.text();
-        content.innerHTML += `<p>${resText}</p>`;
+        
+        // returning info into task listing
+        const parsed = JSON.parse(resText);
+        
+        let taskNum = 1;
+        while(parsed.userData[`task${taskNum}`] !== undefined) {
+          if(taskNum !== 1){
+            addNewTask();
+          }
+
+          let task = document.querySelector(`#task${taskNum}Field`);
+          let deadline = document.querySelector(`#dl${taskNum}Field`);
+
+          task.value = parsed.userData[`task${taskNum}`];
+          console.log(task.value);
+          deadline.value = parsed.userData[`deadline${taskNum}`];
+
+          taskNum++;
+        };
+
       } else {
-        content.innerHTML += `<p>Meta Data Received</p>`;
+        statusMsg.innerHTML += `<p>Meta Data Received</p>`;
       };
     };
 
@@ -58,7 +76,6 @@
       
       const tasks = document.querySelector('#tasks');
       let taskArray = tasks.querySelectorAll('input');
-      console.log(taskArray);
 
       // putting it together into JSON
       let taskNum = 1;
@@ -72,7 +89,7 @@
       };
 
       // last task element
-      if(taskArray.length > 2){
+      if(taskArray.length >= 2){
         formData += `task${taskNum}=${taskArray[taskArray.length-2].value}&`;
         formData += `deadline${taskNum}=${taskArray[taskArray.length-1].value}`;
       }
@@ -91,8 +108,8 @@
     // Returns user info, will be called in getUsers
     const requestUpdate = async (userForm, nameForm) => {
       
-      let url = userForm.querySelector('#urlField').value;
-      const method = userForm.querySelector('#methodSelect').value;
+      let url = '/getUsers';
+      const method = 'get';
 
       const nameField = nameForm.querySelector('#nameField').value;
       const pwField = nameForm.querySelector('#pwField').value;
@@ -102,18 +119,17 @@
       
       let response = await fetch(url, {
         method,
-        headers: { 
-          'Accept': 'application/json',
+        headers: {
+            'Accept': 'application/json'
         },
       });
+
       handleResponse(response, method === 'get');
     };
 
     // Adds new task row to task list
     const addNewTask = () => {
       taskNumber++;
-      console.log("addTask called!");
-      console.log(`Task number is ${taskNumber}`);
       const taskField = document.querySelector('#tasks');
 
       // Creates the label
@@ -201,7 +217,10 @@
         <input id="getUserButton" type="submit" value="Get My List" />
       </form>
     </section>
+    <hr id="divider">
     <section id="content">
+      <h2>Status</h2>
+      <div id="status">Awaiting Input</div>
       <container id="tasks">
         <h1>Task List</h1>
           <label for="task1">Task #1: </label>

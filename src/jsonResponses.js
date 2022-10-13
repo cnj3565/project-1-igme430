@@ -77,32 +77,43 @@ const addUser = (request, response) => {
     // task information
     // try and manage this dynamically
     // handle empty tasks
-    
+    let taskNumber = 1;
+
+    while (bodyObject[`task${taskNumber}`] !== undefined) {
+      // error if empty task
+      if (bodyObject[`task${taskNumber}`] === '') {
+        responseJSON.message = 'Do not leave any empty tasks!';
+        responseJSON.id = 'missingParams';
+        return respondJSON(request, response, 400, responseJSON);
+      }
+
+      users[bodyObject.name][`task${taskNumber}`] = bodyObject[`task${taskNumber}`];
+
+      // error if empty deadline
+      if (bodyObject[`deadline${taskNumber}`] === '') {
+        responseJSON.message = 'Make sure to record the due date!';
+        responseJSON.id = 'missingParams';
+        return respondJSON(request, response, 400, responseJSON);
+      }
+
+      users[bodyObject.name][`deadline${taskNumber}`] = bodyObject[`deadline${taskNumber}`];
+
+      taskNumber++;
+    }
 
     // changes message if new user was created
     if (responseCode === 201) {
       responseJSON.message = 'Created Successfully';
-      return respondJSONmeta(request, response, responseCode);
+      return respondJSON(request, response, responseCode, responseJSON);
     }
 
     // writes different message if user has been updated
     responseJSON.message = `User ${users[bodyObject.name].name} has been updated accordingly.`;
-    return respondJSONmeta(request, response, responseCode);
+    return respondJSON(request, response, responseCode, responseJSON);
   });
 };
 
 // getUsers methods -----------------------------------------
-
-// /!\ identical to getUsers from http api ii, but causes a direct download now
-// for debugging purposes, should just display a whole user list when traveled to
-const userList = (request, response) => {
-  const responseJSON = {
-    users,
-  };
-
-  respondJSON(request, response, 200, responseJSON);
-};
-
 const getUsers = (request, response, params) => {
   // default json message, unchanged if data is missing
   const responseJSON = {
@@ -115,7 +126,6 @@ const getUsers = (request, response, params) => {
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  console.log(users);
   let found = false;
 
   // checks to see if username is in user list
@@ -143,7 +153,9 @@ const getUsers = (request, response, params) => {
   }
 
   // otherwise, return information
-  const responseJSONuser = users[params.username];
+  const userData = users[params.username];
+  const responseJSONuser = { userData };
+  console.log(responseJSONuser);
   return respondJSON(request, response, 200, responseJSONuser);
 };
 
@@ -170,7 +182,6 @@ const notFoundMeta = (request, response) => {
 // sending to server.js
 module.exports = {
   addUser,
-  userList,
   getUsers,
   getUsersMeta,
   notFound,
