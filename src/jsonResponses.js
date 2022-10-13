@@ -159,8 +159,6 @@ const getUsers = (request, response, params) => {
   return respondJSON(request, response, 200, responseJSONuser);
 };
 
-// will assess later
-// may not be needed if whole user info should be returned
 const getUsersMeta = (request, response) => {
   respondJSONmeta(request, response, 200);
 };
